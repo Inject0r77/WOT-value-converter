@@ -1,4 +1,4 @@
-# 🪙 World of Tanks Currency Converter & Live Calculator (v0.4.1)
+# 🪙 World of Tanks Currency Converter & Live Calculator. (v0.4.1)
 
 [![Python Version](https://shields.io)](https://python.org)
 [![UI Library](https://shields.io)](https://github.com)
