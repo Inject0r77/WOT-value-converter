@@ -1,10 +1,8 @@
-# WOT-value-converter
-Real-time currency converter to WOT (WG/LESTA) with many variables.
-# 🪙 World of Tanks Currency Converter & Live Calculator
+# 🪙 World of Tanks Currency Converter & Live Calculator (v0.4.1)
 
 [![Python Version](https://shields.io)](https://python.org)
 [![UI Library](https://shields.io)](https://github.com)
-[![Game](https://shields.io)](https://worldoftanks.ru)
+[![Developer](https://shields.io)](https://github.com)
 
 [Русское описание](#русский) | [English Description](#english)
 
@@ -12,51 +10,47 @@ Real-time currency converter to WOT (WG/LESTA) with many variables.
 
 ## Русский
 
-Современный графический калькулятор валют для **World of Tanks (WoT)**, работающий в режиме реального времени. Скрипт помогает игрокам мгновенно рассчитывать затраты на донат, перевод свободного опыта, покупку кредитов или дней премиум-аккаунта с учетом региональной экономики и оптовых скидок.
+Современный и стабильный графический калькулятор валют для **World of Tanks / Мира танков**, работающий в режиме реального времени. Скрипт помогает игрокам мгновенно рассчитывать затраты на донат, перевод свободного опыта, покупку кредитов или дней премиум-аккаунта с полным разделением игровой экономики разных регионов.
 
 ### ✨ Основные возможности
-* **🔄 Расчет в "Прямом Эфире"**: Результаты обновляются автоматически прямо во время ввода чисел.
-* **🌐 Мультиязычность (RU/EN)**: Мгновенное переключение интерфейса и автоматическая адаптация под валюту региона (**RUB** или **EUR**).
-* **📉 Динамическая сетка цен**:
-  * В режиме **RU** скрипт учитывает прогрессивную скидку игрового магазина при покупке золота большими пакетами.
-  * В режиме **EN** производится ювелирный расчет стоимости в **Евро (€)** на основе официальной сетки пакетов EU-региона.
-* **⭐ Обратная конвертация**: Введите желаемое количество свободного опыта, и калькулятор сам посчитает, сколько золота и денег для этого потребуется.
-* **🎛️ Интерактивные тумблеры акций**:
-  * Включение праздничного курса перевода опыта (**1 к 35** вместо базового 1 к 25).
-  * Включение внутриигровой скидки **15%** на покупку премиум-аккаунта.
-* **⌨️ Удобство использования**: Полная поддержка горячих клавиш `Ctrl + A` (Выделить всё) для быстрой очистки полей в любой раскладке клавиатуры.
+* **🔄 Расчет в "Прямом Эфире"**: Результаты обновляются автоматически прямо во время ввода чисел. Никаких лишних кнопок!
+* **🎛️ Независимый тумблер регионов (LESTA / WG)**: Экономика ивентов и валюта полностью отвязаны от языка интерфейса.
+  * **Режим LESTA**: Расчет доната в рублях (**RUB**) с учетом прогрессивных оптовых скидок магазина. Интегрирован модуль контейнеров *«Зов сокола»* (39 руб./шт.).
+  * **Режим WG**: Расчет доната в евро (**EUR**). Встроен «жадный» алгоритм, который автоматически собирает любую партию коробок из наиболее выгодных пакетов EU-премиум магазина.
+* **🌐 Свободный выбор языка (RU / EN)**: Переключайте язык интерфейса независимо от того, на каком сервере вы играете.
+* **🧹 Умная очистка**: При смене региона или вводе данных в новое поле, калькулятор автоматически стирает старые цифры, исключая путаницу между валютами.
+* **⌨️ Кросс-раскладный Ctrl + A**: Полная поддержка горячих клавиш «Выделить всё» для быстрой очистки полей, корректно работающая на русской и английской раскладке.
+* **🪟 Запуск без консоли**: Код оптимизирован под формат `.pyw` — черное окно терминала Windows больше не появляется при запуске.
 
 ### 🚀 Инструкция по запуску
-1. Установите графическую зависимость через командную строку (cmd):
+1. Установите графическую библиотеку через командную строку (cmd):
    ```bash
    pip install customtkinter
    ```
-2. Запустите файл скрипта двойным щелчком мыши.
+2. Запустите файл `WotVconverter.pyw` двойным щелчком мыши.
 
 ---
 
 ## English
 
-A modern, real-time graphical currency converter and calculator for **World of Tanks (WoT)**. This script helps players instantly calculate donation costs, Free XP conversion values, Credits (Silver) purchases, and Premium Account days based on regional game economics and package discounts.
+A modern and highly stable real-time graphical currency converter and calculator for **World of Tanks**. This script helps players instantly calculate donation costs, Free XP conversion values, Credits (Silver) purchases, and Premium Account days while keeping regional economics fully separated.
 
 ### ✨ Key Features
-* **🔄 Real-Time "Live" Calculation**: Results are updated automatically as you type. No unnecessary buttons!
-* **🌐 Multi-language Support (RU/EN)**: Instant UI translation and automatic currency adaptation (**RUB** or **EUR**) depending on the selected region.
-* **📉 Dynamic Price Grid**:
-  * In **RU mode**, the script accounts for progressive bulk discounts when buying large amounts of Gold.
-  * In **EN mode**, it accurately calculates the cost in **Euro (€)** based on the official EU shop package grid.
-* **⭐ Reverse Conversion**: Enter the desired amount of Free XP, and the calculator will find exactly how much Gold and money you need.
-* **🎛️ Interactive Special Offer Toggles**:
-  * Activate festive Free XP conversion events (**1 to 35** instead of the base 1 to 25 rate).
-  * Apply an in-game **15% discount** on Premium Account purchases.
-* **⌨️ Great UX**: Seamless `Ctrl + A` (Select All) shortcut support for quick field clearing, fully working across different keyboard layouts.
+* **🔄 Real-Time "Live" Calculation**: Results are updated instantly as you type. No unnecessary buttons!
+* **🎛️ Independent Region Toggle (LESTA / WG)**: In-game store economics and event lootboxes are completely separated from the UI language.
+  * **LESTA Mode**: Calculates costs in Rubles (**RUB**) featuring progressive bulk package discounts. Includes a real-time module for *«Call of the Falcon»* containers (39 RUB/each).
+  * **WG Mode**: Calculates costs in Euro (**EUR**). Features a smart greedy algorithm that breaks down any custom number of boxes into the most cost-effective bulk bundles in the EU shop.
+* **🌐 Flexible Language Settings (RU / EN)**: Toggle the interface language freely, regardless of your active game server region.
+* **🧹 Smart Switch Clearing**: Toggling the region or starting to type in a different field automatically clears all other values to eliminate cross-currency confusion.
+* **⌨️ Universal Ctrl + A Support**: Seamless "Select All" shortcut functionality for fast text manipulation, working flawlessly across all keyboard layouts (RU/EN).
+* **🪟 Console-less Execution**: Fully optimized for `.pyw` extension deployment, meaning the annoying black terminal window stays completely hidden.
 
 ### 🚀 How to Run
 1. Install the required GUI library via your terminal:
    ```bash
    pip install customtkinter
    ```
-2. Run the script file by double-clicking.
+2. Run the `WotVconverter.pyw` file with a simple double-click.
 
 ---
 
