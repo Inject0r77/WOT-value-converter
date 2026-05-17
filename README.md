@@ -31,7 +31,7 @@ Real-time currency converter to WOT (WG/LESTA) with many variables.
    ```bash
    pip install customtkinter
    ```
-2. Переименуйте файл скрипта в `wot_live_calc.pyw` (чтобы скрыть черное окно консоли) и запустите его двойным щелчком мыши.
+2. Запустите файл скрипта двойным щелчком мыши.
 
 ---
 
@@ -56,7 +56,7 @@ A modern, real-time graphical currency converter and calculator for **World of T
    ```bash
    pip install customtkinter
    ```
-2. Rename the script file to `wot_live_calc.pyw` (to completely hide the black console window) and run it with a simple double-click.
+2. Run the script file by double-clicking.
 
 ---
 
