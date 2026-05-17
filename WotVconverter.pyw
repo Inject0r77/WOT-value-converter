@@ -18,7 +18,8 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         super().__init__()
 
         self.title("Калькулятор валют World of Tanks")
-        self.geometry("500x710")
+        # Увеличили высоту окна, чтобы коробки красиво помещались
+        self.geometry("520x820") 
         self.resizable(False, False)
 
         self.is_calculating = False
@@ -28,13 +29,20 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.CREDITS_PER_GOLD = 400
         self.BASE_EXP_PER_GOLD = 25
         self.PROMO_EXP_PER_GOLD = 35
-        
-        # ТОЧНЫЙ ЕВРОПЕЙСКИЙ КУРС ИЗ СКРИНШОТА (~0.0036 EUR за 1 единицу золота)
         self.EUR_PER_GOLD = 0.0036  
+
+        # Сетка цен на коробки (количество: цена в EUR)
+        self.BOX_PRICES = [
+            (230, 264.86),
+            (120, 146.78),
+            (80, 103.65),
+            (30, 40.15),
+            (5, 6.83)
+        ]
 
         self.text_dict = {
             "RU": {
-                "title": "Конвертер валют Lesta",
+                "title": "WoT Currency Converter",
                 "promo_title": "Игровые акции и скидки:",
                 "switch_exp": "Акция на свободный опыт (1 к 35 вместо 1 к 25)",
                 "switch_discount": "Скидка 15% во внутриигровом магазине",
@@ -55,7 +63,7 @@ class WoTLiveCalculatorGUI(ctk.CTk):
                 "error": "Ошибка: вводите только числа!"
             },
             "EN": {
-                "title": "Currency Converter Wargaming(eu)",
+                "title": "WoT Currency Converter",
                 "promo_title": "In-game Special Offers & Discounts:",
                 "switch_exp": "Free XP Special Offer (1 to 35 instead of 1 to 25)",
                 "switch_discount": "15% Discount in the Premium Shop",
@@ -73,7 +81,12 @@ class WoTLiveCalculatorGUI(ctk.CTk):
                 "res_prem": "📅 Premium Account: 0 days",
                 "res_prem_fmt": "📅 Premium Account: {} days",
                 "placeholder": "e.g., ",
-                "error": "Error: enter numbers only!"
+                "error": "Error: enter numbers only!",
+                # Текст для нового блока коробок
+                "boxes_title": "Subterranean Secrets Event (Boxes)",
+                "boxes_label": "Enter number of Boxes to buy:",
+                "boxes_res": "📦 Total Boxes Cost: 0.00 EUR",
+                "boxes_res_fmt": "📦 Total Boxes Cost: {} EUR (Combination: {})"
             }
         }
 
@@ -82,7 +95,6 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.update_ui_language()
 
     def get_rub_cost_by_gold(self, gold):
-        """ Динамический расчет стоимости доната в рублях на основе сетки цен """
         if gold <= 0:
             return 0
         if gold <= 100:
@@ -93,7 +105,6 @@ class WoTLiveCalculatorGUI(ctk.CTk):
             return gold * 0.156
 
     def get_gold_by_rub(self, rub):
-        """ Обратный расчет золота на основе внесенных рублей """
         if rub <= 0:
             return 0
         if rub <= 16:
@@ -103,16 +114,44 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         else:
             return rub / 0.156
 
+    def calculate_boxes_cost(self, count):
+        """ Умный расчет стоимости комбинации пакетов коробок """
+        if count <= 0:
+            return 0, "0"
+        
+        total_cost = 0
+        remaining = count
+        combination = []
+
+        # Жадный алгоритм для подбора оптимальных пакетов коробок
+        for box_pack, price in self.BOX_PRICES:
+            if remaining >= box_pack:
+                packs_count = remaining // box_pack
+                total_cost += packs_count * price
+                remaining = remaining % box_pack
+                combination.append(f"{packs_count}x{box_pack}")
+        
+        # Если остались хвостики меньше 5 коробок, считаем их поштучно на базе минимального пака
+        if remaining > 0:
+            single_box_price = 6.83 / 5
+            total_cost += remaining * single_box_price
+            combination.append(f"{remaining}x Singles")
+
+        return total_cost, " + ".join(combination)
+
     def create_widgets(self):
+        # Панель переключения языка
         self.frame_lang = ctk.CTkFrame(self, fg_color="transparent")
         self.frame_lang.pack(anchor="ne", padx=20, pady=5)
         
         self.switch_lang = ctk.CTkSwitch(self.frame_lang, text="Language: RU", font=("Arial", 11, "bold"), command=self.toggle_language)
         self.switch_lang.pack()
 
+        # Заголовок
         self.label_title = ctk.CTkLabel(self, text="", font=("Arial", 24, "bold"), text_color="#ff7f00")
-        self.label_title.pack(pady=10)
+        self.label_title.pack(pady=5)
 
+        # Переключатели акций
         self.frame_switches = ctk.CTkFrame(self)
         self.frame_switches.pack(pady=10, padx=20, fill="x")
 
@@ -125,8 +164,9 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.switch_discount = ctk.CTkSwitch(self.frame_switches, text="", font=("Arial", 12), command=self.trigger_recalc)
         self.switch_discount.pack(anchor="w", padx=20, pady=5)
 
+        # Поля ввода валюты
         self.frame_input = ctk.CTkFrame(self)
-        self.frame_input.pack(pady=15, padx=20, fill="x")
+        self.frame_input.pack(pady=10, padx=20, fill="x")
 
         self.label_rub = ctk.CTkLabel(self.frame_input, text="", font=("Arial", 12))
         self.label_rub.pack(anchor="w", padx=10, pady=2)
@@ -143,11 +183,22 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.entry_exp = ctk.CTkEntry(self.frame_input)
         self.entry_exp.pack(fill="x", padx=10, pady=5)
 
+        # СЕКРЕТНЫЙ БЛОК КОРОБОК ДЛЯ EU-РЕГИОНА (Изначально не упакован на экран)
+        self.frame_boxes = ctk.CTkFrame(self)
+        self.label_boxes_title = ctk.CTkLabel(self.frame_boxes, text="", font=("Arial", 13, "bold"), text_color="#00efff")
+        self.label_boxes_title.pack(anchor="w", padx=10, pady=2)
+        self.entry_boxes = ctk.CTkEntry(self.frame_boxes)
+        self.entry_boxes.pack(fill="x", padx=10, pady=5)
+
+        # Блок результатов
         self.frame_results = ctk.CTkFrame(self, fg_color="#2b2b2b")
-        self.frame_results.pack(pady=15, padx=20, fill="both", expand=True)
+        self.frame_results.pack(pady=10, padx=20, fill="both", expand=True)
 
         self.result_rub_needed = ctk.CTkLabel(self.frame_results, text="", font=("Arial", 14, "bold"), text_color="#00ff00")
-        self.result_rub_needed.pack(anchor="w", padx=15, pady=7)
+        self.result_rub_needed.pack(anchor="w", padx=15, pady=5)
+
+        # Строка результата для коробок (Видна только в EN)
+        self.result_boxes_cost = ctk.CTkLabel(self.frame_results, text="", font=("Arial", 13, "bold"), text_color="#00efff")
 
         self.result_gold = ctk.CTkLabel(self.frame_results, text="", font=("Arial", 14))
         self.result_gold.pack(anchor="w", padx=15, pady=5)
@@ -165,9 +216,18 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         if self.switch_lang.get() == 1:
             self.current_lang = "EN"
             self.switch_lang.configure(text="Language: EN")
+            
+            # Показываем блок коробок
+            self.frame_boxes.pack(pady=10, padx=20, fill="x", after=self.frame_input)
+            self.result_boxes_cost.pack(anchor="w", padx=15, pady=5, after=self.result_rub_needed)
         else:
             self.current_lang = "RU"
             self.switch_lang.configure(text="Language: RU")
+            
+            # Прячем блок коробок
+            self.frame_boxes.pack_forget()
+            self.entry_boxes.delete(0, 'end')
+            self.result_boxes_cost.pack_forget()
         
         self.update_ui_language()
         self.trigger_recalc()
@@ -189,20 +249,27 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.entry_gold.configure(placeholder_text=data["placeholder"] + "2500")
         self.entry_exp.configure(placeholder_text=data["placeholder"] + "100000")
 
-        if not self.entry_rub.get() and not self.entry_gold.get() and not self.entry_exp.get():
+        if lang == "EN":
+            self.label_boxes_title.configure(text=data["boxes_label"])
+            self.entry_boxes.configure(placeholder_text=data["placeholder"] + "80")
+            self.result_boxes_cost.configure(text=data["boxes_res"])
+
+        if not self.entry_rub.get() and not self.entry_gold.get() and not self.entry_exp.get() and not self.entry_boxes.get():
             self.clear_results()
 
     def setup_bindings(self):
         self.entry_rub.bind("<KeyRelease>", lambda event: self.live_calculate("rub"))
         self.entry_gold.bind("<KeyRelease>", lambda event: self.live_calculate("gold"))
         self.entry_exp.bind("<KeyRelease>", lambda event: self.live_calculate("exp"))
+        self.entry_boxes.bind("<KeyRelease>", lambda event: self.live_calculate("boxes"))
+        
         self.bind("<Control-KeyPress>", self.global_ctrl_handler)
         self.last_edited = "rub"
 
     def global_ctrl_handler(self, event):
         if event.keycode == 65 or event.keysym.lower() in ('a', 'ф'):
             focused_widget = self.focus_get()
-            if focused_widget in (self.entry_rub, self.entry_gold, self.entry_exp):
+            if focused_widget in (self.entry_rub, self.entry_gold, self.entry_exp, self.entry_boxes):
                 focused_widget.select_range(0, 'end')
                 focused_widget.icursor('end')
                 return "break"
@@ -217,6 +284,8 @@ class WoTLiveCalculatorGUI(ctk.CTk):
         self.result_credits.configure(text=self.text_dict[lang]["res_credits"])
         self.result_exp.configure(text=self.text_dict[lang]["res_exp"])
         self.result_prem.configure(text=self.text_dict[lang]["res_prem"])
+        if lang == "EN":
+            self.result_boxes_cost.configure(text=self.text_dict[lang]["boxes_res"])
 
     def live_calculate(self, source, clear_others=True):
         if self.is_calculating:
@@ -229,26 +298,42 @@ class WoTLiveCalculatorGUI(ctk.CTk):
             rub_val = self.entry_rub.get().strip()
             gold_val = self.entry_gold.get().strip()
             exp_val = self.entry_exp.get().strip()
+            boxes_val = self.entry_boxes.get().strip()
 
-            if (source == "rub" and not rub_val) or (source == "gold" and not gold_val) or (source == "exp" and not exp_val):
+            # Проверка очистки полей
+            if (source == "rub" and not rub_val) or (source == "gold" and not gold_val) or \
+               (source == "exp" and not exp_val) or (source == "boxes" and not boxes_val):
                 self.clear_results()
                 return
 
             self.is_calculating = True
 
+            # Умная автоочистка неактивных полей
             if clear_others:
-                if source == "rub":
-                    self.entry_gold.delete(0, 'end')
-                    self.entry_exp.delete(0, 'end')
-                elif source == "gold":
-                    self.entry_rub.delete(0, 'end')
-                    self.entry_exp.delete(0, 'end')
-                elif source == "exp":
-                    self.entry_rub.delete(0, 'end')
-                    self.entry_gold.delete(0, 'end')
+                fields = {"rub": self.entry_rub, "gold": self.entry_gold, "exp": self.entry_exp, "boxes": self.entry_boxes}
+                for name, entry in fields.items():
+                    if name != source:
+                        entry.delete(0, 'end')
 
             exp_rate = self.PROMO_EXP_PER_GOLD if self.switch_exp.get() == 1 else self.BASE_EXP_PER_GOLD
 
+            # Расчет коробок (только для EN)
+            if source == "boxes" and boxes_val and lang == "EN":
+                boxes_count = int(boxes_val)
+                box_cost, comb_str = self.calculate_boxes_cost(boxes_count)
+                cost_str = f"{box_cost:,.2f}".replace(",", " ")
+                self.result_boxes_cost.configure(text=self.text_dict["EN"]["boxes_res_fmt"].format(cost_str, comb_str))
+                
+                # При расчете коробок остальные валютные строки зануляем
+                self.result_rub_needed.configure(text=self.text_dict[lang]["res_money"])
+                self.result_gold.configure(text=self.text_dict[lang]["res_gold"])
+                self.result_credits.configure(text=self.text_dict[lang]["res_credits"])
+                self.result_exp.configure(text=self.text_dict[lang]["res_exp"])
+                self.result_prem.configure(text=self.text_dict[lang]["res_prem"])
+                self.is_calculating = False
+                return
+
+            # Стандартный расчет остальных ресурсов
             if source == "rub" and rub_val:
                 money_needed = float(rub_val)
                 if lang == "RU":
@@ -276,7 +361,6 @@ class WoTLiveCalculatorGUI(ctk.CTk):
 
             credits = gold * self.CREDITS_PER_GOLD
             free_exp = gold * exp_rate
-            
             prem_cost_30_days = 2500 * discount_factor
             prem_days = (gold / prem_cost_30_days) * 30
 
@@ -291,6 +375,9 @@ class WoTLiveCalculatorGUI(ctk.CTk):
             self.result_credits.configure(text=self.text_dict[lang]["res_credits_fmt"].format(credits_str))
             self.result_exp.configure(text=self.text_dict[lang]["res_exp_fmt"].format(exp_str))
             self.result_prem.configure(text=self.text_dict[lang]["res_prem_fmt"].format(prem_str))
+            
+            if lang == "EN":
+                self.result_boxes_cost.configure(text=self.text_dict["EN"]["boxes_res"])
 
         except ValueError:
             self.clear_results()
